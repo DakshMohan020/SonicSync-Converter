@@ -2,8 +2,8 @@ import './globals.css';
 import Navigation from '../components/Navigation';
 
 export const metadata = {
-  title: 'SonicSync | Professional Video to High Fidelity ID3 MP3 Conversion Engine',
-  description: 'Enterprise grade media extraction matrix using localized Obsidian design schemas.',
+  title: 'SonicSync | YouTube to MP3 Converter',
+  description: 'Convert any YouTube video to a high quality MP3 file instantly.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

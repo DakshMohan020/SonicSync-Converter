@@ -6,7 +6,6 @@ import { Lock, Cloud, ExternalLink, Calendar } from 'lucide-react';
 export default function HistoryPage() {
   const { isAuthenticated, permanentDownloads } = useSyncStore();
 
-  // Route Condition A: Non-Authenticated Locked System
   if (!isAuthenticated) {
     return (
       <main className="min-h-[calc(100vh-73px)] flex flex-col items-center justify-center px-4">
@@ -15,43 +14,42 @@ export default function HistoryPage() {
             <Lock className="w-5 h-5" />
           </div>
           <div className="space-y-1.5">
-            <h2 className="text-base font-semibold text-onSurface tracking-tight">Cloud Database Synchronizer Locked</h2>
+            <h2 className="text-base font-semibold text-onSurface tracking-tight">Sign In to View Your History</h2>
             <p className="text-xs text-mutedText leading-relaxed max-w-xs mx-auto">
-              Persistent cross-session history registries are isolated behind secure token profiles. Authenticate to sync logs.
+              Your download history is saved to your account. Sign in to see all your past conversions.
             </p>
           </div>
-          <Link 
-            href="/auth" 
+          <Link
+            href="/auth"
             className="block w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded transition-all duration-150 shadow-[0_2px_10px_rgba(255,87,34,0.1)]"
           >
-            Authenticate Profile Instance
+            Sign In
           </Link>
         </div>
       </main>
     );
   }
 
-  // Route Condition B: Authenticated View Hydrated with Sync Stores
   return (
     <main className="min-h-[calc(100vh-73px)] max-w-5xl mx-auto p-8 space-y-6">
       <div className="flex items-center justify-between border-b border-outlineVariant/20 pb-4">
         <div>
-          <h1 className="text-xl font-semibold text-onSurface tracking-tight">Cloud Synced Historic Log</h1>
-          <p className="text-xs text-mutedText mt-0.5">Permanent account ledger synced down to database clusters.</p>
+          <h1 className="text-xl font-semibold text-onSurface tracking-tight">Download History</h1>
+          <p className="text-xs text-mutedText mt-0.5">All your past conversions, saved to your account.</p>
         </div>
         <div className="font-mono text-[9px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded flex items-center gap-1">
-          <Cloud className="w-3 h-3 animate-bounce" /> Database Replica Active
+          <Cloud className="w-3 h-3 animate-bounce" /> Synced
         </div>
       </div>
 
       <div className="space-y-3">
         {permanentDownloads.map((log) => (
-          <div 
-            key={log.id} 
+          <div
+            key={log.id}
             className="bg-surface-containerLowest/40 backdrop-blur-glass border border-outlineVariant/20 rounded p-4 flex items-center justify-between hover:border-outline/30 transition-all duration-150"
           >
             <div className="flex items-center space-x-4 min-w-0">
-              <img src={log.coverUrl} alt="Art Asset" className="w-11 h-11 rounded object-cover border border-outlineVariant/20 shrink-0" />
+              <img src={log.coverUrl} alt="Thumbnail" className="w-11 h-11 rounded object-cover border border-outlineVariant/20 shrink-0" />
               <div className="min-w-0 space-y-0.5">
                 <h3 className="text-xs font-medium text-onSurface truncate max-w-md">{log.title}</h3>
                 <div className="flex items-center space-x-2 text-[11px] text-mutedText">
@@ -66,19 +64,19 @@ export default function HistoryPage() {
 
             <div className="flex items-center space-x-4 font-mono text-xs">
               <span className="text-mutedText/70 text-[11px]">{log.fileSize}</span>
-              <a 
+              <a
                 href={log.targetUrl}
                 target="_blank"
                 className="p-1.5 hover:bg-surface-container text-mutedText hover:text-onSurface rounded border border-outlineVariant/10 transition-colors duration-100"
-                title="View origin stream"
+                title="Open original video"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
-              <a 
+              <a
                 href={log.downloadUrl}
                 className="px-3 py-1.5 bg-surface-containerHigh/60 hover:bg-surface-containerHigh text-onSurface border border-outlineVariant/30 rounded text-[11px] font-sans font-medium transition-all duration-150"
               >
-                Pull Asset
+                Download
               </a>
             </div>
           </div>

@@ -14,7 +14,6 @@ export default function HomeRefined() {
   const setActiveTask = useSyncStore((state) => state.setActiveTask);
   const addSessionDownload = useSyncStore((state) => state.addSessionDownload);
 
-  // Clear all pending timers on unmount to prevent state updates on dead component
   useEffect(() => {
     return () => { timerRefs.current.forEach(clearTimeout); };
   }, []);
@@ -23,12 +22,11 @@ export default function HomeRefined() {
     e.preventDefault();
     if (!targetUrl) return;
 
-    // Clear any leftover timers from a previous run
     timerRefs.current.forEach(clearTimeout);
     timerRefs.current = [];
 
     setIsProcessing(true);
-    setPipelineState('Contacting upstream data servers and acquiring structural streaming keys...');
+    setPipelineState('Connecting to YouTube...');
 
     try {
       const response = await fetch('/api/convert', {
@@ -36,19 +34,18 @@ export default function HomeRefined() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: targetUrl }),
       });
-      
+
       const extractionPayload = await response.json();
 
       if (!response.ok) {
-        throw new Error(extractionPayload.error || 'Pipeline request failed.');
+        throw new Error(extractionPayload.error || 'Conversion failed. Please try again.');
       }
-      
-      // Simulate real-time steps for processing pipeline visualization
+
       timerRefs.current.push(
-        setTimeout(() => setPipelineState('Isolating core layer frequencies and demuxing container audio content blocks...'), 1200)
+        setTimeout(() => setPipelineState('Extracting audio...'), 1200)
       );
       timerRefs.current.push(
-        setTimeout(() => setPipelineState('Hydrating binary header fields with strict ID3 structural frames...'), 2400)
+        setTimeout(() => setPipelineState('Converting to MP3...'), 2400)
       );
       timerRefs.current.push(
         setTimeout(() => {
@@ -61,7 +58,7 @@ export default function HomeRefined() {
 
     } catch (err) {
       console.error(err);
-      setPipelineState(err instanceof Error ? err.message : 'An architectural pipeline exception occurred.');
+      setPipelineState(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
       setIsProcessing(false);
     }
   };
@@ -73,13 +70,13 @@ export default function HomeRefined() {
       <div className="w-full max-w-3xl bg-surface-containerLowest/40 backdrop-blur-glass border border-outlineVariant/20 rounded-lg p-10 relative z-10 space-y-8">
         <div className="text-center space-y-3">
           <span className="text-[10px] font-mono tracking-widest text-primary uppercase bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-sm">
-            High Bitrate Processing Interface
+            Free YouTube to MP3 Converter
           </span>
           <h1 className="text-3xl font-semibold tracking-tight text-onSurface">
-            Convert Video Links to Pristine MP3 Targets
+            Convert Any YouTube Video to MP3
           </h1>
           <p className="text-mutedText text-sm max-w-md mx-auto">
-            Input any network video stream target location. Our extraction cloud automates metadata container parsing and high fidelity encoding instantly.
+            Paste a YouTube link below and get a high quality MP3 download in seconds. No sign up needed.
           </p>
         </div>
 
@@ -89,7 +86,7 @@ export default function HomeRefined() {
               type="url"
               required
               disabled={isProcessing}
-              placeholder="Paste specific watch token destination (e.g., https://www.youtube.com/watch?v=...)"
+              placeholder="Paste a YouTube URL (e.g. https://www.youtube.com/watch?v=...)"
               value={targetUrl}
               onChange={(e) => setTargetUrl(e.target.value)}
               className="w-full bg-surface-containerLow border border-outlineVariant/40 rounded px-4 py-4 text-xs font-mono text-onSurface placeholder:text-mutedText/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all duration-150"
@@ -111,7 +108,7 @@ export default function HomeRefined() {
               </div>
             ) : (
               <div className="flex items-center gap-1">
-                <span>Compile & Extract High Bitrate Payload</span>
+                <span>Convert to MP3</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
             )}
@@ -122,22 +119,22 @@ export default function HomeRefined() {
           <div className="flex items-start gap-2.5 bg-surface-containerLowest/50 p-3 rounded border border-outlineVariant/10">
             <Zap className="w-4 h-4 text-primary shrink-0" />
             <div>
-              <div className="text-onSurface font-medium text-[11px]">320kbps Solid State</div>
-              <p className="text-[10px] text-mutedText/70 mt-0.5">High spectral profile maintenance.</p>
+              <div className="text-onSurface font-medium text-[11px]">320 kbps Quality</div>
+              <p className="text-[10px] text-mutedText/70 mt-0.5">High quality audio, every time.</p>
             </div>
           </div>
           <div className="flex items-start gap-2.5 bg-surface-containerLowest/50 p-3 rounded border border-outlineVariant/10">
             <Shield className="w-4 h-4 text-primary shrink-0" />
             <div>
-              <div className="text-onSurface font-medium text-[11px]">ID3 Automatic Mapping</div>
-              <p className="text-[10px] text-mutedText/70 mt-0.5">Title, artists, cover mappings auto filled.</p>
+              <div className="text-onSurface font-medium text-[11px]">Auto Song Tags</div>
+              <p className="text-[10px] text-mutedText/70 mt-0.5">Title, artist and cover art included.</p>
             </div>
           </div>
           <div className="flex items-start gap-2.5 bg-surface-containerLowest/50 p-3 rounded border border-outlineVariant/10">
             <HelpCircle className="w-4 h-4 text-primary shrink-0" />
             <div>
-              <div className="text-onSurface font-medium text-[11px]">Sandboxed API Hook</div>
-              <p className="text-[10px] text-mutedText/70 mt-0.5">Exposed endpoints for remote tooling.</p>
+              <div className="text-onSurface font-medium text-[11px]">Developer API</div>
+              <p className="text-[10px] text-mutedText/70 mt-0.5">Integrate conversions into your own app.</p>
             </div>
           </div>
         </div>
