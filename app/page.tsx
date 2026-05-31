@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSyncStore } from '../store/useSyncStore';
 import { ArrowRight, HelpCircle, Shield, Zap } from 'lucide-react';
@@ -8,14 +8,24 @@ export default function HomeRefined() {
   const [targetUrl, setTargetUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [pipelineState, setPipelineState] = useState('');
-  
+  const timerRefs = useRef<ReturnType<typeof setTimeout>[]>([]);
+
   const router = useRouter();
   const setActiveTask = useSyncStore((state) => state.setActiveTask);
   const addSessionDownload = useSyncStore((state) => state.addSessionDownload);
 
+  // Clear all pending timers on unmount to prevent state updates on dead component
+  useEffect(() => {
+    return () => { timerRefs.current.forEach(clearTimeout); };
+  }, []);
+
   const initPipelineAction = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!targetUrl) return;
+
+    // Clear any leftover timers from a previous run
+    timerRefs.current.forEach(clearTimeout);
+    timerRefs.current = [];
 
     setIsProcessing(true);
     setPipelineState('Contacting upstream data servers and acquiring structural streaming keys...');
@@ -28,21 +38,30 @@ export default function HomeRefined() {
       });
       
       const extractionPayload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(extractionPayload.error || 'Pipeline request failed.');
+      }
       
       // Simulate real-time steps for processing pipeline visualization
-      setTimeout(() => setPipelineState('Isolating core layer frequencies and demuxing container audio content blocks...'), 1200);
-      setTimeout(() => setPipelineState('Hydrating binary header fields with strict ID3 structural frames...'), 2400);
-      
-      setTimeout(() => {
-        setActiveTask(extractionPayload);
-        addSessionDownload(extractionPayload);
-        setIsProcessing(false);
-        router.push('/success');
-      }, 3600);
+      timerRefs.current.push(
+        setTimeout(() => setPipelineState('Isolating core layer frequencies and demuxing container audio content blocks...'), 1200)
+      );
+      timerRefs.current.push(
+        setTimeout(() => setPipelineState('Hydrating binary header fields with strict ID3 structural frames...'), 2400)
+      );
+      timerRefs.current.push(
+        setTimeout(() => {
+          setActiveTask(extractionPayload);
+          addSessionDownload(extractionPayload);
+          setIsProcessing(false);
+          router.push('/success');
+        }, 3600)
+      );
 
     } catch (err) {
       console.error(err);
-      setPipelineState('An architectural pipeline exception occurred.');
+      setPipelineState(err instanceof Error ? err.message : 'An architectural pipeline exception occurred.');
       setIsProcessing(false);
     }
   };

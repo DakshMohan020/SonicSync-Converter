@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Code, Terminal, TerminalSquare, Key, Play } from 'lucide-react';
+import { Code, TerminalSquare, Key } from 'lucide-react';
 
 export default function ApiHubPage() {
   const [apiKeyGenerated, setApiKeyGenerated] = useState(false);
@@ -21,7 +21,7 @@ export default function ApiHubPage() {
 }`;
 
   return (
-    <main className="min-h-[calc-100vh-73px)] max-w-5xl mx-auto p-8 space-y-8">
+    <main className="min-h-[calc(100vh-73px)] max-w-5xl mx-auto p-8 space-y-8">
       <div className="border-b border-outlineVariant/20 pb-4">
         <h1 className="text-xl font-semibold text-onSurface tracking-tight">Developer API Gateway Hub</h1>
         <p className="text-xs text-mutedText mt-0.5">Integrate programmatic audio extraction and frequency demux modules directly into remote applications.</p>

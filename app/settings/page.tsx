@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Settings, Volume2, Image, ShieldAlert, Cpu } from 'lucide-react';
+import { Volume2, Image, Cpu } from 'lucide-react';
 
 export default function SettingsPage() {
   const [targetBitrate, setTargetBitrate] = useState('320');
