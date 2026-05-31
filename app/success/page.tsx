@@ -20,12 +20,11 @@ export default function SuccessRefined() {
 
   const triggerDownloadSimulation = () => {
     setDownloadSuccess(true);
-    // Explicit runtime action container to handle payload mapping download events
-    const dummyBlobContent = "MOCK_MP3_BINARY_STREAM_DATA_BUFFER";
-    const blobObject = new Blob([dummyBlobContent], { type: 'audio/mp3' });
+    // Hit the real streaming download endpoint with the correct filename
+    const safeFilename = activeTask.title.replace(/[^a-zA-Z0-9_\- ]/g, '').replace(/\s+/g, '_');
     const dynamicAnchor = document.createElement('a');
-    dynamicAnchor.href = URL.createObjectURL(blobObject);
-    dynamicAnchor.download = `${activeTask.title.replace(/\s+/g, '_')}.mp3`;
+    dynamicAnchor.href = activeTask.downloadUrl;
+    dynamicAnchor.download = `${safeFilename}.mp3`;
     document.body.appendChild(dynamicAnchor);
     dynamicAnchor.click();
     document.body.removeChild(dynamicAnchor);
