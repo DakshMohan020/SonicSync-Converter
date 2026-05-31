@@ -23,11 +23,26 @@ export async function GET(
     );
   }
 
-  // Pull the desired filename from query param set by the client
-  const url = new URL(request.url);
-  const rawName = url.searchParams.get('filename') || id;
-  // Sanitize for Content-Disposition header (strip quotes and backslashes)
-  const safeHeaderName = rawName.replace(/["\\\r\n]/g, '').substring(0, 200);
+  // Safely parse filename from query string — works even with relative URLs
+  let filenameParam = id;
+  try {
+    // request.url may be relative in some Next.js environments, so use a dummy base
+    const parsed = new URL(request.url, 'http://localhost');
+    const raw = parsed.searchParams.get('filename');
+    if (raw && raw.trim().length > 0) {
+      filenameParam = raw.trim();
+    }
+  } catch {
+    // Fall back to id
+  }
+
+  // Strip characters illegal in Content-Disposition filenames
+  const safeHeaderName = filenameParam
+    .replace(/["\\\r\n]/g, '')   // strip quotes, backslashes, newlines
+    .replace(/[^\x20-\x7E]/g, '') // strip non-ASCII (emojis, Hindi chars, etc)
+    .replace(/\s+/g, '_')         // spaces to underscores
+    .substring(0, 200)
+    || id; // final fallback if everything gets stripped
 
   const fileStats = await stat(filePath);
   const fileStream = createReadStream(filePath);

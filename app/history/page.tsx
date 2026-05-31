@@ -89,7 +89,9 @@ export default function HistoryPage() {
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
               <a
-                href={log.downloadUrl}
+                href={`${log.downloadUrl}?filename=${encodeURIComponent(
+                  `${log.title} - ${log.artist}`.replace(/[^\x20-\x7E]/g, '').replace(/[^a-zA-Z0-9 \-]/g, '').replace(/\s+/g, '_').substring(0, 100) || log.id
+                )}`}
                 className="px-3 py-1.5 bg-surface-containerHigh/60 hover:bg-surface-containerHigh text-onSurface border border-outlineVariant/30 rounded text-[11px] font-sans font-medium transition-all duration-150"
               >
                 Download

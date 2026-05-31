@@ -31,12 +31,21 @@ export default function SuccessRefined() {
 
   const handleDownload = () => {
     setDownloadStarted(true);
-    // Build filename from title + artist, pass it to the server so the
-    // Content-Disposition header uses it (browser ignores anchor.download for cross-origin streams)
-    const safeFilename = `${activeTask.title} - ${activeTask.artist}`
-      .replace(/[^a-zA-Z0-9_\- ]/g, '')
-      .replace(/\s+/g, '_')
-      .substring(0, 100);
+
+    // Strip non-ASCII (emojis, Hindi, etc.) and special chars, keep letters/numbers/spaces/dashes
+    const clean = (str: string) =>
+      str.replace(/[^\x20-\x7E]/g, '').replace(/[^a-zA-Z0-9 \-]/g, '').trim();
+
+    const titleClean = clean(activeTask.title);
+    const artistClean = clean(activeTask.artist);
+
+    // Build filename: "Title - Artist", fall back to just title, then to the id
+    let safeFilename = titleClean && artistClean
+      ? `${titleClean} - ${artistClean}`
+      : titleClean || artistClean || activeTask.id;
+
+    safeFilename = safeFilename.replace(/\s+/g, '_').substring(0, 100);
+
     const anchor = document.createElement('a');
     anchor.href = `${activeTask.downloadUrl}?filename=${encodeURIComponent(safeFilename)}`;
     anchor.download = `${safeFilename}.mp3`;
