@@ -31,13 +31,14 @@ export default function SuccessRefined() {
 
   const handleDownload = () => {
     setDownloadStarted(true);
-    // Use the video title + artist as the filename
+    // Build filename from title + artist, pass it to the server so the
+    // Content-Disposition header uses it (browser ignores anchor.download for cross-origin streams)
     const safeFilename = `${activeTask.title} - ${activeTask.artist}`
       .replace(/[^a-zA-Z0-9_\- ]/g, '')
       .replace(/\s+/g, '_')
-      .substring(0, 100); // cap length to be safe
+      .substring(0, 100);
     const anchor = document.createElement('a');
-    anchor.href = activeTask.downloadUrl;
+    anchor.href = `${activeTask.downloadUrl}?filename=${encodeURIComponent(safeFilename)}`;
     anchor.download = `${safeFilename}.mp3`;
     document.body.appendChild(anchor);
     anchor.click();

@@ -5,12 +5,11 @@ import path from 'path';
 import { Readable } from 'stream';
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
 
-  // Basic validation — only allow alphanumeric + dash (the format we generate)
   if (!id || !/^sync-[a-z0-9]+$/.test(id)) {
     return NextResponse.json({ error: 'Invalid file ID.' }, { status: 400 });
   }
@@ -24,10 +23,14 @@ export async function GET(
     );
   }
 
+  // Pull the desired filename from query param set by the client
+  const url = new URL(request.url);
+  const rawName = url.searchParams.get('filename') || id;
+  // Sanitize for Content-Disposition header (strip quotes and backslashes)
+  const safeHeaderName = rawName.replace(/["\\\r\n]/g, '').substring(0, 200);
+
   const fileStats = await stat(filePath);
   const fileStream = createReadStream(filePath);
-
-  // Convert Node.js Readable to Web ReadableStream for Next.js Response
   const webStream = Readable.toWeb(fileStream) as ReadableStream;
 
   return new NextResponse(webStream, {
@@ -35,7 +38,7 @@ export async function GET(
     headers: {
       'Content-Type': 'audio/mpeg',
       'Content-Length': String(fileStats.size),
-      'Content-Disposition': `attachment; filename="${id}.mp3"`,
+      'Content-Disposition': `attachment; filename="${safeHeaderName}.mp3"`,
       'Cache-Control': 'no-store',
     },
   });
