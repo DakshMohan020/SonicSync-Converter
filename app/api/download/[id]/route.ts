@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { createReadStream, existsSync } from 'fs';
 import { stat } from 'fs/promises';
 import path from 'path';
 import { Readable } from 'stream';
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
@@ -23,26 +24,21 @@ export async function GET(
     );
   }
 
-  // Safely parse filename from query string — works even with relative URLs
-  let filenameParam = id;
-  try {
-    // request.url may be relative in some Next.js environments, so use a dummy base
-    const parsed = new URL(request.url, 'http://localhost');
-    const raw = parsed.searchParams.get('filename');
-    if (raw && raw.trim().length > 0) {
-      filenameParam = raw.trim();
-    }
-  } catch {
-    // Fall back to id
-  }
+  // NextRequest.nextUrl.searchParams is the reliable way to read query params in Next.js 14
+  const rawFilename = request.nextUrl.searchParams.get('filename');
 
-  // Strip characters illegal in Content-Disposition filenames
-  const safeHeaderName = filenameParam
-    .replace(/["\\\r\n]/g, '')   // strip quotes, backslashes, newlines
-    .replace(/[^\x20-\x7E]/g, '') // strip non-ASCII (emojis, Hindi chars, etc)
-    .replace(/\s+/g, '_')         // spaces to underscores
-    .substring(0, 200)
-    || id; // final fallback if everything gets stripped
+  // ASCII-safe fallback filename (for the legacy filename= field)
+  const asciiFallback = (rawFilename || id)
+    .replace(/[^\x20-\x7E]/g, '')   // strip non-ASCII
+    .replace(/[^a-zA-Z0-9 .\-_]/g, '_') // replace special chars
+    .replace(/\s+/g, '_')
+    .substring(0, 150)
+    || id;
+
+  // RFC 5987 encoded filename — supports Unicode (Hindi, emoji, etc.) in modern browsers
+  const rfc5987Filename = rawFilename
+    ? encodeURIComponent(rawFilename + '.mp3')
+    : `${id}.mp3`;
 
   const fileStats = await stat(filePath);
   const fileStream = createReadStream(filePath);
@@ -53,7 +49,8 @@ export async function GET(
     headers: {
       'Content-Type': 'audio/mpeg',
       'Content-Length': String(fileStats.size),
-      'Content-Disposition': `attachment; filename="${safeHeaderName}.mp3"`,
+      // Use both: filename= for old browsers, filename*= (RFC 5987) for modern ones
+      'Content-Disposition': `attachment; filename="${asciiFallback}.mp3"; filename*=UTF-8''${rfc5987Filename}`,
       'Cache-Control': 'no-store',
     },
   });

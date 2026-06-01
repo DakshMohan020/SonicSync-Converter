@@ -31,24 +31,10 @@ export default function SuccessRefined() {
 
   const handleDownload = () => {
     setDownloadStarted(true);
-
-    // Strip non-ASCII (emojis, Hindi, etc.) and special chars, keep letters/numbers/spaces/dashes
-    const clean = (str: string) =>
-      str.replace(/[^\x20-\x7E]/g, '').replace(/[^a-zA-Z0-9 \-]/g, '').trim();
-
-    const titleClean = clean(activeTask.title);
-    const artistClean = clean(activeTask.artist);
-
-    // Build filename: "Title - Artist", fall back to just title, then to the id
-    let safeFilename = titleClean && artistClean
-      ? `${titleClean} - ${artistClean}`
-      : titleClean || artistClean || activeTask.id;
-
-    safeFilename = safeFilename.replace(/\s+/g, '_').substring(0, 100);
-
+    // Pass the raw YouTube title + artist directly — server handles sanitization
+    const rawFilename = `${activeTask.title} - ${activeTask.artist}`;
     const anchor = document.createElement('a');
-    anchor.href = `${activeTask.downloadUrl}?filename=${encodeURIComponent(safeFilename)}`;
-    anchor.download = `${safeFilename}.mp3`;
+    anchor.href = `${activeTask.downloadUrl}?filename=${encodeURIComponent(rawFilename)}`;
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);

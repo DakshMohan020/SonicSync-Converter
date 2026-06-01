@@ -42,9 +42,7 @@ export default function LibraryPage() {
                 </div>
                 <span className="text-primary font-semibold">{asset.duration}</span>
                 <a
-                  href={`${asset.downloadUrl}?filename=${encodeURIComponent(
-                    `${asset.title} - ${asset.artist}`.replace(/[^\x20-\x7E]/g, '').replace(/[^a-zA-Z0-9 \-]/g, '').replace(/\s+/g, '_').substring(0, 100) || asset.id
-                  )}`}
+                  href={`${asset.downloadUrl}?filename=${encodeURIComponent(`${asset.title} - ${asset.artist}`)}`}
                   className="px-3 py-1.5 bg-primary/10 hover:bg-primary border border-primary/20 hover:border-transparent text-primary hover:text-white rounded text-[11px] font-sans font-medium transition-all duration-150 flex items-center gap-1"
                 >
                   <Download className="w-3 h-3" />

@@ -1,26 +1,10 @@
 'use client';
-import { useEffect } from 'react';
 import { useSyncStore } from '../../store/useSyncStore';
 import Link from 'next/link';
 import { Lock, Cloud, ExternalLink, Calendar } from 'lucide-react';
 
 export default function HistoryPage() {
   const { isAuthenticated, permanentDownloads } = useSyncStore();
-
-  // One-time cleanup: remove the old hardcoded demo entry from any persisted history
-  useEffect(() => {
-    try {
-      Object.keys(localStorage)
-        .filter((k) => k.startsWith('sonicsync_history:'))
-        .forEach((k) => {
-          const items = JSON.parse(localStorage.getItem(k) || '[]');
-          const cleaned = items.filter((i: { id: string }) => i.id !== 'archived-09c');
-          if (cleaned.length !== items.length) {
-            localStorage.setItem(k, JSON.stringify(cleaned));
-          }
-        });
-    } catch { /* ignore */ }
-  }, []);
 
   if (!isAuthenticated) {
     return (
@@ -89,9 +73,7 @@ export default function HistoryPage() {
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
               <a
-                href={`${log.downloadUrl}?filename=${encodeURIComponent(
-                  `${log.title} - ${log.artist}`.replace(/[^\x20-\x7E]/g, '').replace(/[^a-zA-Z0-9 \-]/g, '').replace(/\s+/g, '_').substring(0, 100) || log.id
-                )}`}
+                href={`${log.downloadUrl}?filename=${encodeURIComponent(`${log.title} - ${log.artist}`)}`}
                 className="px-3 py-1.5 bg-surface-containerHigh/60 hover:bg-surface-containerHigh text-onSurface border border-outlineVariant/30 rounded text-[11px] font-sans font-medium transition-all duration-150"
               >
                 Download

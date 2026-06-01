@@ -6,19 +6,18 @@ export const metadata = {
   description: 'Convert any YouTube video to a high quality MP3 file instantly.',
 };
 
-// Inline script to purge the old hardcoded demo entry from localStorage before React hydrates
-const purgeLegacyScript = `
+// Runs before React hydration — wipes all persisted history from any previous
+// version of the app that may have contained demo/seed data.
+// The version flag prevents this from running on every page load after the first wipe.
+const purgeScript = `
 (function() {
   try {
-    Object.keys(localStorage)
-      .filter(function(k) { return k.indexOf('sonicsync_history:') === 0; })
-      .forEach(function(k) {
-        var items = JSON.parse(localStorage.getItem(k) || '[]');
-        var cleaned = items.filter(function(i) { return i.id !== 'archived-09c'; });
-        if (cleaned.length !== items.length) {
-          localStorage.setItem(k, JSON.stringify(cleaned));
-        }
-      });
+    if (localStorage.getItem('sonicsync_db_version') !== '2') {
+      Object.keys(localStorage)
+        .filter(function(k) { return k.startsWith('sonicsync_history:'); })
+        .forEach(function(k) { localStorage.removeItem(k); });
+      localStorage.setItem('sonicsync_db_version', '2');
+    }
   } catch(e) {}
 })();
 `;
@@ -27,8 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="bg-background min-h-screen text-onSurface overflow-x-hidden">
-        {/* Runs synchronously before hydration to wipe any legacy demo data */}
-        <script dangerouslySetInnerHTML={{ __html: purgeLegacyScript }} />
+        <script dangerouslySetInnerHTML={{ __html: purgeScript }} />
         <Navigation />
         {children}
       </body>
