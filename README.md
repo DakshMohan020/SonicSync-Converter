@@ -20,7 +20,58 @@ A fast, clean, self-hosted web app that converts any YouTube video to a high-qua
 
 ---
 
-## Screenshots
+## Deployment
+
+SonicSync requires **yt-dlp** and **ffmpeg** on the server, so it cannot be deployed on Vercel or Netlify. Use one of the options below — all are free.
+
+---
+
+### 🥇 Railway (Recommended)
+
+**Free tier:** $5 credits/month — enough for personal use.
+
+1. Go to [railway.app](https://railway.app) and sign up with your GitHub account
+2. Click **New Project → Deploy from GitHub repo** → select `SonicSync-Converter`
+3. Railway auto-detects the `Dockerfile` and starts building (takes ~3–5 min first time)
+4. Once deployed, go to **Settings → Networking → Generate Domain**
+5. Your app is live at a free `*.up.railway.app` URL
+
+---
+
+### 🥈 Render
+
+**Free tier:** Free web service (note: spins down after 15 min of inactivity, ~30 sec cold start).
+
+1. Go to [render.com](https://render.com) and sign up with GitHub
+2. Click **New → Web Service** → connect `SonicSync-Converter`
+3. Set **Runtime** to `Docker`
+4. Click **Deploy** — you'll get a free `*.onrender.com` URL
+
+---
+
+### 🥉 Fly.io
+
+**Free tier:** 3 shared VMs free permanently (most generous, but more setup required).
+
+1. Install the Fly CLI: `curl -L https://fly.io/install.sh | sh`
+2. Run `fly auth login`
+3. Inside the repo folder run `fly launch` — follow the prompts
+4. Deploy with `fly deploy`
+
+---
+
+### How the Dockerfile works
+
+The included `Dockerfile` uses a two-stage build:
+
+- **Stage 1 (builder)** — installs Node dependencies and runs `npm run build`
+- **Stage 2 (runner)** — starts from a clean Alpine Linux image, installs `ffmpeg` + `yt-dlp`, copies only the built app (not source code), and runs as a non-root user
+
+This keeps the final image small (~300 MB) and production-ready with no extra configuration needed.
+
+---
+
+
 
 | Converter | Success | History |
 |-----------|---------|---------|
